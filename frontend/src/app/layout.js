@@ -28,15 +28,15 @@ export default function RootLayout({ children }) {
         Loading...
       </div>
     );
+  } else {
+    return (
+      <html lang="en">
+        <body>
+          <Toaster position="top-right" />
+          <Navbar />
+          {children}
+        </body>
+      </html>
+    );
   }
-
-  return (
-    <html lang="en">
-      <body>
-        <Toaster position="top-right" />
-        <Navbar />
-        {children}
-      </body>
-    </html>
-  );
 }

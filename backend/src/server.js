@@ -103,10 +103,11 @@ app.use("/auth", AuthRouter);
 app.use("/doc", documentRoutes);
 
 // app.listen(port, () => {
+//   connectDB();
 //   console.log(`Example app listening on port ${port}!`);
 // });
 
-server.listen(port, () => {
+server.listen(8000, () => {
   connectDB();
   console.log(`Server running on port ${port}!`);
 });

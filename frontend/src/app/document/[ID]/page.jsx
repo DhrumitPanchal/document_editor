@@ -85,7 +85,7 @@ function page() {
 
   // Connect to socket
   useEffect(() => {
-    socket = io("http://localhost:5000");
+    socket = io("https://document-editor-80fc.onrender.com");
     const token = localStorage.getItem("accessToken");
     if (!token) {
       toast.error("No token found, please login again.");

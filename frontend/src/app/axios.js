@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const Axios = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: "https://document-editor-80fc.onrender.com",
   withCredentials: true,
   headers: {
     "Content-type": "application/json",

@@ -12,7 +12,7 @@ import { jwtDecode } from "jwt-decode";
 
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000"); // Replace with
+const socket = io("https://document-editor-80fc.onrender.com"); // Replace with
 
 function page() {
   const [loading, setLoading] = React.useState(false);

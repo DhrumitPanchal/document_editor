@@ -30,7 +30,6 @@ const connectedUsers = {};
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
-  // Joining a document room
   socket.on("join-document", async ({ documentId, userId }) => {
     socket.join(documentId);
 
@@ -51,8 +50,6 @@ io.on("connection", (socket) => {
         socketId: socket.id,
       });
     }
-
-    console.log(connectedUsers);
 
     io.to(documentId).emit("user-joined", {
       userId,
@@ -97,7 +94,7 @@ app.use(
     origin: [
       "https://document-editor-qo3k.vercel.app",
       "http://localhost:3000",
-    ], // Update with your frontend URL
+    ],
   })
 );
 
@@ -105,11 +102,11 @@ app.get("/", (req, res) => res.send("Hello World!"));
 app.use("/auth", AuthRouter);
 app.use("/doc", documentRoutes);
 
-app.listen(port, () => {
-  connectDB();
-  console.log(`Example app listening on port ${port}!`);
-});
+// app.listen(port, () => {
+//   console.log(`Example app listening on port ${port}!`);
+// });
 
-server.listen(5000, () => {
+server.listen(port, () => {
+  connectDB();
   console.log(`Server running on port ${port}!`);
 });

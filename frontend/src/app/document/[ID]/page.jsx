@@ -12,7 +12,7 @@ import { jwtDecode } from "jwt-decode";
 
 import { io } from "socket.io-client";
 
-const socket = io("https://document-editor-80fc.onrender.com"); // Replace with
+let socket;
 
 function page() {
   const [loading, setLoading] = React.useState(false);
@@ -24,6 +24,7 @@ function page() {
   const [DataChanged, setDataChanged] = React.useState(false);
   const [lastSavedData, setLastSavedData] = React.useState({});
   const [data, setData] = React.useState({});
+
   const fetchData = async () => {
     try {
       const response = await Axios.get(`/doc/${ID}`);
@@ -57,6 +58,7 @@ function page() {
       });
       setLoading(false);
       setLastSavedData(response?.data);
+      setDataChanged(false);
     } catch (error) {
       setLoading(false);
       console.log(error);
@@ -81,24 +83,9 @@ function page() {
     }
   };
 
+  // Connect to socket
   useEffect(() => {
-    const checkTitle = data?.title === lastSavedData?.title;
-    const checkContent = data?.content === lastSavedData?.content;
-
-    if (checkTitle && checkContent) {
-      setDataChanged(false);
-    } else {
-      setDataChanged(true);
-    }
-  }, [data, lastSavedData]);
-
-  useEffect(() => {
-    fetchData();
-    getallUSers();
-  }, [ID]);
-
-  useEffect(() => {
-    // Connect to socket
+    socket = io("http://localhost:5000");
     const token = localStorage.getItem("accessToken");
     if (!token) {
       toast.error("No token found, please login again.");
@@ -107,7 +94,7 @@ function page() {
 
     socket.on("connect", (id) => {});
     const decodedToken = jwtDecode(token);
-    const userId = decodedToken?.id; // Get userId from storage or context
+    const userId = decodedToken?.id;
     socket.emit("join-document", { documentId: ID, userId });
 
     socket.on("user-joined", (user) => {
@@ -144,6 +131,30 @@ function page() {
       socket.disconnect();
     };
   }, [ID]);
+
+  useEffect(() => {
+    const checkTitle = data?.title === lastSavedData?.title;
+    const checkContent = data?.content === lastSavedData?.content;
+
+    if (checkTitle && checkContent) {
+      setDataChanged(false);
+    } else {
+      setDataChanged(true);
+    }
+  }, [data, lastSavedData]);
+
+  useEffect(() => {
+    fetchData();
+    getallUSers();
+  }, [ID]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      save();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleContentChange = (e) => {
     const updatedContent = e.target.value;
@@ -223,7 +234,7 @@ function page() {
         <div className="flex px-10  h-screen w-full gap-40">
           <div className="w-[60%] h-[80%] bg-white">
             <textarea
-              className="w-full h-full p-4"
+              className="w-full h-full p-4 text-4xl"
               placeholder="Type here..."
               onChange={handleContentChange}
               value={data?.content}
@@ -231,9 +242,12 @@ function page() {
           </div>
           <div>
             <h2 className="text-xl font-semibold">Connected Users</h2>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2">
               {connectedUsers?.map((user) => (
-                <div key={user} className="bg-slate-200 p-1 rounded-sm text-xs">
+                <div
+                  key={user}
+                  className="bg-slate-200 p-1 rounded-sm  text-2xl"
+                >
                   {user?.email}
                 </div>
               ))}

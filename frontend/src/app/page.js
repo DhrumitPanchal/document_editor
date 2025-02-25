@@ -19,7 +19,7 @@ export default function Home() {
   const newDoc = async () => {
     try {
       setLoading(true);
-      const response = await Axios.put("/doc/create", { title });
+      const response = await Axios.post("/doc/create", { title });
       setLoading(false);
       router.push(`/document/${response?.data?._id}`);
     } catch (error) {
@@ -52,7 +52,9 @@ export default function Home() {
         <div className="flex justify-center items-center fixed top-0 left-0 w-full h-screen z-20 bg-black/10 backdrop-blur-[2px]">
           <div className="bg-white w-[26%] p-4 rounded-md">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibolds text-ellipsis">New Document</h2>
+              <h2 className="text-2xl font-semibolds text-ellipsis">
+                New Document
+              </h2>
               <div
                 onClick={() => setPopup(false)}
                 className="flex justify-center items-center cursor-pointer h-6 w-6 bg-slate-200 rounded-sm"

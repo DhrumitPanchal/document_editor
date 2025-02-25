@@ -14,7 +14,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // Adjust based on your frontend
+    origin: [
+      "https://document-editor-qo3k.vercel.app",
+      "http://localhost:3000",
+    ],
     methods: ["GET", "POST"],
   },
 });
@@ -22,7 +25,7 @@ dotenv.config();
 
 const port = process.env.PORT;
 
-const connectedUsers = {}; 
+const connectedUsers = {};
 
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
@@ -91,9 +94,13 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: ["*"],
+    origin: [
+      "https://document-editor-qo3k.vercel.app",
+      "http://localhost:3000",
+    ], // Update with your frontend URL
   })
 );
+
 app.get("/", (req, res) => res.send("Hello World!"));
 app.use("/auth", AuthRouter);
 app.use("/doc", documentRoutes);

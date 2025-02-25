@@ -18,15 +18,19 @@ export default function RootLayout({ children }) {
     if (!accessToken && !publicRoutes.includes(pathname)) {
       router.push("/login");
     } else {
-      setCheckingAuth(false); // Stop loading when auth check is done
+      setCheckingAuth(false);
     }
   }, [pathname]);
 
   if (checkingAuth) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        Loading...
-      </div>
+      <html lang="en">
+        <body>
+          <div className="flex items-center justify-center h-screen w-full">
+            Loading...
+          </div>
+        </body>
+      </html>
     );
   } else {
     return (

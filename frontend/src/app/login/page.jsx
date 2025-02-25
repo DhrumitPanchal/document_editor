@@ -21,8 +21,9 @@ function Page() {
       setLoading(false);
       console.log(response);
       toast.success("login successfully");
-      localStorage &&
+      if (typeof window !== "undefined") {
         localStorage.setItem("accessToken", response?.data?.token);
+      }
       router.push("/");
     } catch (error) {
       setLoading(false);

@@ -5,10 +5,18 @@ export const Axios = axios.create({
   withCredentials: true,
   headers: {
     "Content-type": "application/json",
-    Authorization:
-      localStorage?.getItem("accessToken") &&
-      `Bearer ${localStorage?.getItem("accessToken")}`,
   },
+});
+
+// Set Authorization header dynamically
+Axios.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
 });
 
 Axios.interceptors.response.use(
@@ -17,18 +25,18 @@ Axios.interceptors.response.use(
     return response;
   },
   async (error) => {
-    if (error.response.status === 401) {
+    if (error.response?.status === 401) {
       try {
         const { data } = await Axios.get("/auth/refresh-token");
-        localStorage.setItem("accessToken", data?.token);
-
-        if (data?.token) {
+        if (data?.token && typeof window !== "undefined") {
+          localStorage.setItem("accessToken", data?.token);
           error.config.headers.Authorization = `Bearer ${data?.token}`;
           return axios(error.config);
         }
-      } catch (error) {
-        console.log("Error Refreshing token");
+      } catch (refreshError) {
+        console.log("Error Refreshing token", refreshError);
       }
     }
+    return Promise.reject(error);
   }
 );

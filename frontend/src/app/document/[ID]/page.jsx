@@ -2,7 +2,7 @@
 
 import Button from "@/app/components/Button";
 import Input from "@/app/components/Input";
-import React, { use, useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useRef } from "react";
 import { FcDocument } from "react-icons/fc";
 import { useParams } from "next/navigation";
 import { Axios } from "@/app/axios";
@@ -24,12 +24,14 @@ function page() {
   const [DataChanged, setDataChanged] = React.useState(false);
   const [lastSavedData, setLastSavedData] = React.useState({});
   const [data, setData] = React.useState({});
+  const dataRef = useRef(data);
 
   const fetchData = async () => {
     try {
       const response = await Axios.get(`/doc/${ID}`);
       setData(response?.data);
       setLastSavedData(response?.data);
+      dataRef.current = response?.data;
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.msg);
@@ -51,13 +53,17 @@ function page() {
   };
 
   const save = async () => {
+    if (!DataChanged) return;
+
     try {
       setLoading(true);
-      const response = await Axios.put(`/doc/update/${ID}`, {
-        content: data?.content,
+      const latestData = dataRef.current;
+      await Axios.put(`/doc/update/${ID}`, {
+        content: latestData?.content,
       });
       setLoading(false);
-      setLastSavedData(response?.data);
+      console.log("send data ---", latestData);
+      setLastSavedData(latestData);
       setDataChanged(false);
     } catch (error) {
       setLoading(false);
@@ -131,16 +137,11 @@ function page() {
       socket.disconnect();
     };
   }, [ID]);
-
   useEffect(() => {
     const checkTitle = data?.title === lastSavedData?.title;
     const checkContent = data?.content === lastSavedData?.content;
-
-    if (checkTitle && checkContent) {
-      setDataChanged(false);
-    } else {
-      setDataChanged(true);
-    }
+    setDataChanged(!(checkTitle && checkContent));
+    dataRef.current = data;
   }, [data, lastSavedData]);
 
   useEffect(() => {
@@ -150,20 +151,23 @@ function page() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      save();
+      if (DataChanged) {
+        save();
+      }
     }, 10000);
-
     return () => clearInterval(interval);
-  }, []);
+  }, [DataChanged]);
 
   const handleContentChange = (e) => {
     const updatedContent = e.target.value;
-    setData({ ...data, content: updatedContent });
+    setData((prev) => {
+      const newData = { ...prev, content: updatedContent };
+      dataRef.current = newData;
+      return newData;
+    });
 
-    // Emit changes to the server
     socket.emit("send-changes", { documentId: ID, changes: updatedContent });
   };
-
   return (
     <>
       {popup && (

@@ -27,7 +27,11 @@ const login = async (req, res) => {
 
     const accessToken = generateAccessToken({ id: user._id });
     const refreshToken = generateRefreshToken({ id: user._id });
-    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      expires: new Date(Date.now() + 604800000),
+    });
 
     res.json({
       token: accessToken,
@@ -68,7 +72,11 @@ const register = async (req, res) => {
     const accessToken = generateAccessToken({ id: savedUser._id });
     const refreshToken = generateRefreshToken({ id: savedUser._id });
 
-    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      expires: new Date(Date.now() + 604800000),
+    });
 
     res.json({
       token: accessToken,
